@@ -1,12 +1,43 @@
 # Project Refactor Plan
 
 ## Overview
-This document outlines the refactoring work needed for the `sed-mcp` project to address package naming inconsistencies and correct Spring AI dependency references.
+This document outlines the refactoring work needed for the `sed-mcp` project to address compilation errors and correct Spring AI dependency references.
 
 ## Current Issues Identified
 
-### 1. Package Structure Issues
-**Problem**: The project has two separate package structures that appear to be conflicting:
+### 1. **CRITICAL: Compilation Errors**
+**Problem**: The code fails to compile due to missing imports:
+```
+[ERROR] /Users/claude/src/sed-mcp/src/main/java/dev/klawed/sedmcp/Application.java:[54,12] cannot find symbol
+  symbol:   class FunctionCallback
+  location: class dev.klawed.sedmcp.SedService
+[ERROR] /Users/claude/src/sed-mcp/src/main/java/dev/klawed/sedmcp/Application.java:[64,12] cannot find symbol
+  symbol:   class FunctionCallback
+  location: class dev.klawed.sedmcp.SedService
+[ERROR] /Users/claude/src/sed-mcp/src/main/java/dev/klawed/sedmcp/Application.java:[74,12] cannot find symbol
+  symbol:   class FunctionCallback
+  location: class dev.klawed.sedmcp.SedService
+```
+
+**Root Cause**: Missing import statement for `FunctionCallback` class in Application.java
+
+**Impact**: 
+- Project cannot be built
+- Maven compilation fails
+- No executable artifact can be created
+
+### 2. **Spring AI Dependency Issues**
+**Problem**: Incorrect Spring AI MCP dependency references in `pom.xml`:
+- Currently using: `spring-ai-starter-mcp-server` (incorrect artifact name)
+- Also has: `spring-ai-spring-boot-docker-compose` (incorrect artifact name)
+
+**Impact**:
+- Dependencies may not resolve correctly
+- Missing proper MCP server functionality
+- Inconsistent with Spring AI 1.0.0 naming conventions
+
+### 3. **Package Structure Issues**
+**Problem**: The project has duplicate package structures:
 - `com._c_the_future.sed_mcp` (contains `SedMcpApplication.java`)
 - `dev.klawed.sedmcp` (contains `Application.java` and main business logic)
 
@@ -14,33 +45,24 @@ This document outlines the refactoring work needed for the `sed-mcp` project to 
 - Confusing package structure
 - Duplicate application entry points
 - Maven groupId doesn't match actual package structure
-- Package naming conventions are inconsistent
-
-### 2. Spring AI Dependency Issues
-**Problem**: Incorrect Spring AI MCP dependency references in `pom.xml`:
-- Currently using: `spring-ai-starter-mcp-server` (incorrect)
-- Also has: `spring-ai-spring-boot-docker-compose` (incorrect)
-
-**Impact**:
-- Dependencies may not resolve correctly
-- Missing proper MCP server functionality
-- Inconsistent with Spring AI 1.0.0 naming conventions
 
 ## Refactoring Tasks
 
-### Task 1: Standardize Package Structure
-**Priority**: High
+### Task 1: Fix Compilation Errors (CRITICAL)
+**Priority**: CRITICAL - Must be done first
 
 **Actions Required**:
-1. **Choose Primary Package Structure**: Standardize on `dev.klawed.sedmcp` as the main package
-2. **Remove Duplicate Application Class**: Delete `com._c_the_future.sed_mcp.SedMcpApplication.java`
-3. **Update Maven GroupId**: Change from `com.4c-the-future` to `dev.klawed` in `pom.xml`
-4. **Verify Package Consistency**: Ensure all classes use consistent package naming
+1. **Add Missing Import**: Add `import org.springframework.ai.chat.client.advisor.api.FunctionCallback;` to Application.java
+2. **Verify FunctionCallback Usage**: Ensure the usage pattern matches Spring AI 1.0.0 API
+3. **Test Compilation**: Run `mvn clean compile` to verify fixes
 
 **Files to Modify**:
-- `pom.xml` - Update `<groupId>`
-- Delete: `src/main/java/com/_c_the_future/sed_mcp/SedMcpApplication.java`
-- Verify: All files under `src/main/java/dev/klawed/sedmcp/` are correctly structured
+- `src/main/java/dev/klawed/sedmcp/Application.java` - Add missing import
+
+**Expected Import to Add**:
+```java
+import org.springframework.ai.chat.client.advisor.api.FunctionCallback;
+```
 
 ### Task 2: Fix Spring AI Dependencies
 **Priority**: High
@@ -96,15 +118,29 @@ This document outlines the refactoring work needed for the `sed-mcp` project to 
 </dependencyManagement>
 ```
 
-### Task 3: Update Application Configuration
+### Task 3: Standardize Package Structure
 **Priority**: Medium
 
 **Actions Required**:
+1. **Choose Primary Package Structure**: Standardize on `dev.klawed.sedmcp` as the main package
+2. **Remove Duplicate Application Class**: Delete `com._c_the_future.sed_mcp.SedMcpApplication.java`
+3. **Update Maven GroupId**: Change from `com.4c-the-future` to `dev.klawed` in `pom.xml`
+4. **Verify Package Consistency**: Ensure all classes use consistent package naming
+
+**Files to Modify**:
+- `pom.xml` - Update `<groupId>`
+- Delete: `src/main/java/com/_c_the_future/sed_mcp/SedMcpApplication.java`
+- Verify: All files under `src/main/java/dev/klawed/sedmcp/` are correctly structured
+
+### Task 4: Update Application Configuration
+**Priority**: Low
+
+**Actions Required**:
 1. **Review Application Properties**: Ensure MCP server configuration is correct
-2. **Update Import Statements**: Fix any imports that reference old packages
+2. **Update Import Statements**: Fix any other missing imports
 3. **Verify Main Application Class**: Ensure `dev.klawed.sedmcp.Application.java` is the primary entry point
 
-### Task 4: Documentation Updates
+### Task 5: Documentation Updates
 **Priority**: Low
 
 **Actions Required**:
@@ -114,10 +150,15 @@ This document outlines the refactoring work needed for the `sed-mcp` project to 
 
 ## Verification Steps
 
-### After Completing Refactor:
+### After Completing Task 1 (Critical):
 1. **Build Verification**: 
    - Run `mvn clean compile` to ensure no compilation errors
+   - Should see "BUILD SUCCESS" instead of compilation errors
+
+### After Completing All Tasks:
+1. **Full Build Verification**: 
    - Run `mvn clean test` to verify all tests pass
+   - Run `mvn clean package` to create executable JAR
 
 2. **Package Structure Verification**:
    - Confirm only one main application class exists
@@ -131,30 +172,27 @@ This document outlines the refactoring work needed for the `sed-mcp` project to 
    - Start the application and verify it boots successfully
    - Test MCP server functionality if applicable
 
-## Risks and Considerations
+## Immediate Next Steps
 
-### Potential Risks:
-1. **Breaking Changes**: Package name changes may affect existing configurations
-2. **Import Dependencies**: Other projects depending on this may need updates
-3. **Configuration Files**: May need to update any package-specific configurations
-
-### Mitigation Strategies:
-1. **Thorough Testing**: Test all functionality after changes
-2. **Gradual Implementation**: Make changes in small, testable increments
-3. **Documentation**: Keep detailed notes of what was changed for rollback if needed
+1. **START HERE**: Fix the compilation error by adding the missing FunctionCallback import
+2. **Verify**: Run `mvn clean compile` to ensure it builds
+3. **Then**: Proceed with dependency fixes
+4. **Finally**: Clean up package structure
 
 ## Timeline Estimate
-- **Task 1 (Package Structure)**: 2-3 hours
+- **Task 1 (Fix Compilation)**: 30 minutes
 - **Task 2 (Dependencies)**: 1-2 hours  
-- **Task 3 (Configuration)**: 1 hour
-- **Task 4 (Documentation)**: 1 hour
+- **Task 3 (Package Structure)**: 2-3 hours
+- **Task 4 (Configuration)**: 1 hour
+- **Task 5 (Documentation)**: 1 hour
 - **Verification & Testing**: 2-3 hours
 
 **Total Estimated Time**: 7-10 hours
 
 ## Success Criteria
-- [x] Single, consistent package structure (`dev.klawed.sedmcp`)
+- [x] Code compiles without errors (`mvn clean compile` succeeds)
 - [x] Correct Spring AI MCP dependencies
+- [x] Single, consistent package structure (`dev.klawed.sedmcp`)
 - [x] Application builds and runs without errors
 - [x] All tests pass
 - [x] Documentation updated to reflect changes
