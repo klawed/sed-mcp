@@ -52,17 +52,28 @@ This document outlines the refactoring work needed for the `sed-mcp` project to 
 **Priority**: CRITICAL - Must be done first
 
 **Actions Required**:
-1. **Add Missing Import**: Add `import org.springframework.ai.chat.client.advisor.api.FunctionCallback;` to Application.java
-2. **Verify FunctionCallback Usage**: Ensure the usage pattern matches Spring AI 1.0.0 API
-3. **Test Compilation**: Run `mvn clean compile` to verify fixes
+1. **IMPORTANT: API Migration**: The code is using the deprecated `FunctionCallback` API. According to Spring AI 1.0.0, this should be migrated to the new `ToolCallback` API.
+
+**Documentation References**:
+- [Migrating from FunctionCallback to ToolCallback API](https://docs.spring.io/spring-ai/reference/api/tools-migration.html)
+- [Tool Calling Documentation](https://docs.spring.io/spring-ai/reference/api/tools.html)
+- [FunctionCallback Documentation (deprecated)](https://docs.spring.io/spring-ai/reference/api/function-callback.html)
+
+**Two Options for Fix**:
+
+**Option A: Quick Fix (Add Missing Import)**
+- Add `import org.springframework.ai.model.function.FunctionCallback;` to Application.java
+- This maintains deprecated API but allows compilation
+
+**Option B: Proper Fix (Migrate to New API)**
+- Replace `FunctionCallback` with `ToolCallback` from `org.springframework.ai.tool.ToolCallback`
+- Update the builder pattern to use new ToolCallback API
+- See: [GitHub: ToolCallback.java](https://github.com/spring-projects/spring-ai/blob/main/spring-ai-model/src/main/java/org/springframework/ai/tool/ToolCallback.java)
+
+**Recommended Approach**: Option A for immediate compilation fix, then Option B for proper migration.
 
 **Files to Modify**:
-- `src/main/java/dev/klawed/sedmcp/Application.java` - Add missing import
-
-**Expected Import to Add**:
-```java
-import org.springframework.ai.chat.client.advisor.api.FunctionCallback;
-```
+- `src/main/java/dev/klawed/sedmcp/Application.java` - Add missing import or migrate API
 
 ### Task 2: Fix Spring AI Dependencies
 **Priority**: High
@@ -78,6 +89,11 @@ import org.springframework.ai.chat.client.advisor.api.FunctionCallback;
 
 3. **Add Spring AI BOM**: Include proper dependency management
 4. **Update Version References**: Ensure Spring AI version consistency
+
+**Documentation References**:
+- [MCP Server Boot Starter Documentation](https://docs.spring.io/spring-ai/reference/api/mcp/mcp-server-boot-starter-docs.html)
+- [Spring AI Upgrade Notes - Artifact ID Changes](https://docs.spring.io/spring-ai/reference/upgrade-notes.html)
+- [Getting Started - Dependency Management](https://docs.spring.io/spring-ai/reference/getting-started.html)
 
 **Dependency Changes in `pom.xml`**:
 
@@ -147,6 +163,24 @@ import org.springframework.ai.chat.client.advisor.api.FunctionCallback;
 1. **Update README.md**: Reflect correct package structure and dependencies
 2. **Update ARCHITECTURE.md**: Document the standardized structure
 3. **Update SETUP.md**: Ensure setup instructions are accurate
+
+## Documentation References Used
+
+### Spring AI Official Documentation:
+- [Spring AI Reference Documentation](https://docs.spring.io/spring-ai/reference/index.html)
+- [Tool Calling Documentation](https://docs.spring.io/spring-ai/reference/api/tools.html)
+- [MCP Server Boot Starter](https://docs.spring.io/spring-ai/reference/api/mcp/mcp-server-boot-starter-docs.html)
+- [Function Callback Migration Guide](https://docs.spring.io/spring-ai/reference/api/tools-migration.html)
+- [Upgrade Notes](https://docs.spring.io/spring-ai/reference/upgrade-notes.html)
+
+### API Documentation:
+- [ToolCallback Interface](https://docs.spring.io/spring-ai/docs/1.0.0-SNAPSHOT/api/org/springframework/ai/tool/ToolCallback.html)
+- [Tool Annotation](https://docs.spring.io/spring-ai/docs/1.0.0-M6/api/org/springframework/ai/tool/annotation/Tool.html)
+- [FunctionCallback (deprecated)](https://docs.spring.io/spring-ai/reference/api/function-callback.html)
+
+### Release Notes:
+- [Spring AI 1.0.0 M6 Release](https://spring.io/blog/2025/02/14/spring-ai-1-0-0-m6-released/)
+- [Spring AI 1.0 GA Release](https://spring.io/blog/2025/05/20/spring-ai-1-0-GA-released/)
 
 ## Verification Steps
 
