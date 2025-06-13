@@ -11,7 +11,7 @@
 	<groupId>dev.klawed</groupId>
 	<artifactId>sed-mcp</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<n>sed-mcp</n>
+	<name>sed-mcp</name>
 	<description>provide sed capabilities to your favorite llm</description>
 	<url/>
 	<licenses>
@@ -94,7 +94,7 @@
 	<repositories>
 		<repository>
 			<id>spring-milestones</id>
-			<n>Spring Milestones</n>
+			<name>Spring Milestones</name>
 			<url>https://repo.spring.io/milestone</url>
 			<snapshots>
 				<enabled>false</enabled>
