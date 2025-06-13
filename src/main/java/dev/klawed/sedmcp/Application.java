@@ -12,6 +12,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
+// Add the missing import for FunctionCallback
+import org.springframework.ai.model.function.FunctionCallback;
+
 import jakarta.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
