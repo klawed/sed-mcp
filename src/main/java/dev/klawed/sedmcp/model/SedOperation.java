@@ -78,6 +78,7 @@ public class SedOperation {
     }
     
     public OperationType getOperation() { return operation; }
+    public OperationType getOperationType() { return operation; } // Added method to fix compilation error
     public String getPattern() { return pattern; }
     public String getReplacement() { return replacement; }
     public String getFlags() { return flags; }
@@ -156,6 +157,6 @@ public class SedOperation {
     @Override
     public String toString() {
         return String.format("SedOperation{op=%s, pattern='%s', replacement='%s', flags='%s', address='%s', text='%s'}", 
-                           operation, pattern, replacement, flags, address, text);
+                             operation, pattern, replacement, flags, address, text);
     }
 }
