@@ -1,8 +1,8 @@
-# 📚 SED-MCP Usage Guide & Examples
+# SED-MCP Usage Guide & Examples
 
 A comprehensive guide to using the sed Model Context Protocol (MCP) server with real-world examples and use cases.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Installation & Setup
 
@@ -28,7 +28,7 @@ A comprehensive guide to using the sed Model Context Protocol (MCP) server with 
    }
    ```
 
-## 🛠 Available Tools
+## Available Tools
 
 ### 1. `sed_execute` - Execute sed operations
 Execute sed operations on text content with full processing.
@@ -39,7 +39,7 @@ Test sed operations safely without modifying content.
 ### 3. `sed_validate` - Validate syntax
 Check if your sed operation syntax is valid before execution.
 
-## 📖 Operation Types
+## Operation Types
 
 ### Substitution (`s`)
 Replace text patterns with new content.
@@ -62,9 +62,9 @@ Extract lines matching a pattern.
 
 **Syntax:** `/pattern/p`
 
-## 💡 Real-World Examples
+## Real-World Examples
 
-### 📝 Text Processing
+### Text Processing
 
 #### 1. **Update Configuration Files**
 ```json
@@ -98,7 +98,7 @@ Extract lines matching a pattern.
 ```
 **Result:** Returns only error log lines
 
-### 🌐 Web Development
+### Web Development
 
 #### 4. **Update API Endpoints**
 ```json
@@ -132,7 +132,7 @@ Extract lines matching a pattern.
 ```
 **Result:** Extracts all CSS class definitions
 
-### 🔧 DevOps & System Administration
+### DevOps & System Administration
 
 #### 7. **Update Docker Compose Versions**
 ```json
@@ -168,7 +168,7 @@ Extract lines matching a pattern.
 ```
 **Result:** Masks sensitive information
 
-### 📊 Data Processing
+### Data Processing
 
 #### 10. **CSV Data Cleaning**
 ```json
@@ -204,7 +204,7 @@ Extract lines matching a pattern.
 ```
 **Result:** Extracts just the domain parts of email addresses
 
-### 📱 Mobile Development
+### Mobile Development
 
 #### 13. **Update App Version Strings**
 ```json
@@ -228,7 +228,7 @@ Extract lines matching a pattern.
 ```
 **Result:** Removes debug console statements
 
-### 🔒 Security & Compliance
+### Security & Compliance
 
 #### 15. **Anonymize User Data**
 ```json
@@ -252,7 +252,7 @@ Extract lines matching a pattern.
 ```
 **Result:** Returns only valid email addresses
 
-### 🎨 Content Management
+### Content Management
 
 #### 17. **Update Markdown Links**
 ```json
@@ -276,7 +276,7 @@ Extract lines matching a pattern.
 ```
 **Result:** Finds all images with alt text
 
-## 🎯 Advanced Patterns
+## Advanced Patterns
 
 ### Complex Regex Examples
 
@@ -303,7 +303,7 @@ Extract lines matching a pattern.
 ```
 **Result:** Extracts all code blocks
 
-## 🔧 Best Practices
+## Best Practices
 
 ### 1. **Always Preview First**
 Use `sed_preview` to test your operations before applying them:
@@ -339,21 +339,21 @@ Remember to escape regex special characters:
 - `m` for multiline mode
 - `s` for dot-matches-all mode
 
-## ⚡ Performance Tips
+## Performance Tips
 
 1. **Specific Patterns**: Use specific patterns rather than broad ones
 2. **Anchoring**: Use `^` and `$` for line anchoring when possible
 3. **Non-greedy Matching**: Use `*?` instead of `*` when appropriate
 4. **Character Classes**: Use `[0-9]` instead of `\\d` for better compatibility
 
-## 🚨 Common Pitfalls
+## Common Pitfalls
 
 1. **Forgetting to Escape**: Always escape special regex characters
 2. **Greedy Matching**: Be careful with `.*` patterns
 3. **Case Sensitivity**: Remember to use `i` flag when needed
 4. **Line Ending Differences**: Consider different line ending formats
 
-## 🤝 Integration Examples
+## Integration Examples
 
 ### With curl
 ```bash
@@ -380,14 +380,14 @@ def sed_execute(content, operation, pattern, replacement="", flags=""):
     pass
 ```
 
-## 📈 Next Steps
+## Next Steps
 
 1. **Learn More**: Study the [sed manual](https://www.gnu.org/software/sed/manual/sed.html)
 2. **Practice**: Try the examples with your own data
 3. **Integrate**: Add to your Claude Desktop configuration
 4. **Extend**: Consider contributing new features
 
-## 🆘 Getting Help
+## Getting Help
 
 - Check the [main README](README.md) for setup instructions
 - Review the [architecture documentation](ARCHITECTURE.md)
@@ -396,4 +396,4 @@ def sed_execute(content, operation, pattern, replacement="", flags=""):
 
 ---
 
-*Happy text processing with sed-mcp! 🎉*
+*Happy text processing with sed-mcp!*
