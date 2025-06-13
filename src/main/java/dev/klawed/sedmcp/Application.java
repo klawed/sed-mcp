@@ -3,7 +3,7 @@ package dev.klawed.sedmcp;
 import dev.klawed.sedmcp.model.SedOperation;
 import dev.klawed.sedmcp.model.SedResult;
 import dev.klawed.sedmcp.service.SedEngine;
-import dev.klawed.sedmcp.service.impl.MockSedEngine;
+import dev.klawed.sedmcp.service.impl.RealSedEngine;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +31,7 @@ public class Application {
 
 /**
  * Service that exposes sed operations as MCP tools using @Tool annotations.
+ * Now uses the real sed engine instead of the mock implementation.
  */
 @Service
 class SedService {
@@ -39,13 +40,14 @@ class SedService {
     private final SedEngine engine;
     
     public SedService() {
-        this.engine = new MockSedEngine();
+        this.engine = new RealSedEngine();
     }
     
     @PostConstruct
     public void init() {
-        logger.info("Sed MCP Service initialized with MockSedEngine");
-        logger.info("Ready to perform sed operations via MCP protocol");
+        logger.info("Sed MCP Service initialized with RealSedEngine");
+        logger.info("Ready to perform real sed operations via MCP protocol");
+        logger.info("Supported operations: SUBSTITUTE, DELETE, PRINT");
     }
     
     @Tool(name = "sed_execute", description = "Execute a sed operation on text content")
