@@ -3,7 +3,7 @@ package dev.klawed.sedmcp;
 import dev.klawed.sedmcp.model.SedOperation;
 import dev.klawed.sedmcp.model.SedResult;
 import dev.klawed.sedmcp.service.SedEngine;
-import dev.klawed.sedmcp.service.impl.MockSedEngine;
+import dev.klawed.sedmcp.service.impl.RealSedEngine;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,15 +11,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Service;
 
-// Use the modern @Tool annotation approach
-import org.springframework.ai.tool.annotation.Tool;
-
 import jakarta.annotation.PostConstruct;
 import java.util.List;
 
 /**
  * Main Spring Boot application for the sed MCP server.
- * Uses Spring AI MCP to expose sed operations as MCP tools.
+ * This is the fallback Spring Boot application - the actual MCP server is in McpServer.java
  */
 @SpringBootApplication
 public class Application {
@@ -30,7 +27,8 @@ public class Application {
 }
 
 /**
- * Service that exposes sed operations as MCP tools using @Tool annotations.
+ * Service that provides sed operations as a Spring Bean.
+ * Note: This is not the main MCP server - see McpServer.java for the actual MCP implementation
  */
 @Service
 class SedService {
@@ -39,181 +37,54 @@ class SedService {
     private final SedEngine engine;
     
     public SedService() {
-        this.engine = new MockSedEngine();
+        this.engine = new RealSedEngine();
     }
     
     @PostConstruct
     public void init() {
-        logger.info("Sed MCP Service initialized with MockSedEngine");
-        logger.info("Ready to perform sed operations via MCP protocol");
+        logger.info("Sed MCP Service initialized with RealSedEngine");
+        logger.info("Note: The main MCP server implementation is in McpServer.java");
+        logger.info("Supported operations: SUBSTITUTE, DELETE, PRINT");
     }
     
-    @Tool(name = "sed_execute", description = "Execute a sed operation on text content")
-    public SedExecuteResponse executeSedOperation(SedExecuteRequest request) {
+    public SedResult executeSedOperation(String content, SedOperation operation) {
         try {
-            logger.info("Executing sed operation: {}", request.operation());
-            
-            SedOperation operation = buildOperation(request);
-            SedResult result = engine.executeOperation(request.content(), operation);
-            
-            return new SedExecuteResponse(
-                result.isSuccess(),
-                result.getOriginalContent(),
-                result.getModifiedContent(),
-                result.isModified(),
-                result.getLinesModified(),
-                result.getChangesApplied(),
-                result.getWarnings(),
-                result.getExecutionTimeMs(),
-                null
-            );
-            
+            logger.info("Executing sed operation: {}", operation.getOperationType());
+            return engine.executeOperation(content, operation);
         } catch (Exception e) {
             logger.error("Error executing sed operation", e);
-            return new SedExecuteResponse(
-                false, request.content(), request.content(), false, 0,
-                List.of(), List.of(), 0, e.getMessage()
-            );
+            return SedResult.builder()
+                .success(false)
+                .originalContent(content)
+                .modifiedContent(content)
+                .errorMessage(e.getMessage())
+                .build();
         }
     }
     
-    @Tool(name = "sed_preview", description = "Preview a sed operation without modifying the original")
-    public SedExecuteResponse previewSedOperation(SedExecuteRequest request) {
+    public SedResult previewSedOperation(String content, SedOperation operation) {
         try {
-            logger.info("Previewing sed operation: {}", request.operation());
-            
-            SedOperation operation = buildOperation(request);
-            SedResult result = engine.previewOperation(request.content(), operation);
-            
-            return new SedExecuteResponse(
-                result.isSuccess(),
-                result.getOriginalContent(),
-                result.getModifiedContent(),
-                result.isModified(),
-                result.getLinesModified(),
-                result.getChangesApplied(),
-                result.getWarnings(),
-                0, // Preview doesn't track execution time
-                null
-            );
-            
+            logger.info("Previewing sed operation: {}", operation.getOperationType());
+            return engine.previewOperation(content, operation);
         } catch (Exception e) {
             logger.error("Error previewing sed operation", e);
-            return new SedExecuteResponse(
-                false, request.content(), request.content(), false, 0,
-                List.of(), List.of(), 0, e.getMessage()
-            );
+            return SedResult.builder()
+                .success(false)
+                .originalContent(content)
+                .modifiedContent(content)
+                .errorMessage(e.getMessage())
+                .build();
         }
     }
     
-    @Tool(name = "sed_validate", description = "Validate a sed operation syntax")
-    public SedValidateResponse validateSedOperation(SedValidateRequest request) {
+    public boolean validateSedOperation(SedOperation operation) {
         try {
-            logger.info("Validating sed operation: {}", request.operation());
-            
-            SedOperation operation = buildOperationForValidation(request);
+            logger.info("Validating sed operation: {}", operation.getOperationType());
             engine.validateOperation(operation);
-            
-            return new SedValidateResponse(
-                true,
-                request.operation(),
-                "Operation is valid",
-                null
-            );
-            
+            return true;
         } catch (Exception e) {
-            logger.warn("Validation failed for sed operation: {}", request.operation(), e);
-            return new SedValidateResponse(
-                false,
-                request.operation(),
-                null,
-                e.getMessage()
-            );
+            logger.warn("Validation failed for sed operation: {}", operation.getOperationType(), e);
+            return false;
         }
-    }
-    
-    private SedOperation buildOperation(SedExecuteRequest request) {
-        SedOperation.OperationType type = SedOperation.OperationType.fromCommand(request.operation());
-        SedOperation.Builder builder = SedOperation.builder().operation(type);
-        
-        if (request.pattern() != null) {
-            builder.pattern(request.pattern());
-        }
-        if (request.replacement() != null) {
-            builder.replacement(request.replacement());
-        }
-        if (request.flags() != null) {
-            builder.flags(request.flags());
-        }
-        if (request.text() != null) {
-            builder.text(request.text());
-        }
-        if (request.address() != null) {
-            builder.address(request.address());
-        }
-        
-        return builder.build();
-    }
-    
-    private SedOperation buildOperationForValidation(SedValidateRequest request) {
-        SedOperation.OperationType type = SedOperation.OperationType.fromCommand(request.operation());
-        SedOperation.Builder builder = SedOperation.builder().operation(type);
-        
-        if (request.pattern() != null) {
-            builder.pattern(request.pattern());
-        }
-        if (request.replacement() != null) {
-            builder.replacement(request.replacement());
-        }
-        if (request.flags() != null) {
-            builder.flags(request.flags());
-        }
-        if (request.text() != null) {
-            builder.text(request.text());
-        }
-        if (request.address() != null) {
-            builder.address(request.address());
-        }
-        
-        return builder.build();
     }
 }
-
-// Request/Response records for MCP tool calls
-record SedExecuteRequest(
-    String content,
-    String operation,
-    String pattern,
-    String replacement,
-    String flags,
-    String text,
-    String address
-) {}
-
-record SedValidateRequest(
-    String operation,
-    String pattern,
-    String replacement,
-    String flags,
-    String text,
-    String address
-) {}
-
-record SedExecuteResponse(
-    boolean success,
-    String originalContent,
-    String modifiedContent,
-    boolean modified,
-    int linesModified,
-    List<String> changesApplied,
-    List<String> warnings,
-    long executionTimeMs,
-    String error
-) {}
-
-record SedValidateResponse(
-    boolean valid,
-    String operation,
-    String message,
-    String error
-) {}
