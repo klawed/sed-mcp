@@ -9,15 +9,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
-// Add the missing import for FunctionCallback
-import org.springframework.ai.model.function.FunctionCallback;
+// Use the modern @Tool annotation approach
+import org.springframework.ai.tool.annotation.Tool;
 
 import jakarta.annotation.PostConstruct;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Main Spring Boot application for the sed MCP server.
@@ -32,7 +30,7 @@ public class Application {
 }
 
 /**
- * Service that exposes sed operations as MCP tools.
+ * Service that exposes sed operations as MCP tools using @Tool annotations.
  */
 @Service
 class SedService {
@@ -50,39 +48,7 @@ class SedService {
         logger.info("Ready to perform sed operations via MCP protocol");
     }
     
-    // For now, we'll implement tool registration via function callbacks
-    // This will be replaced with @Tool annotations when Spring AI MCP starter is properly configured
-    
-    @Bean
-    public FunctionCallback sedExecuteFunction() {
-        return FunctionCallback.builder()
-                .name("sed_execute")
-                .description("Execute a sed operation on text content")
-                .inputType(SedExecuteRequest.class)
-                .function(this::executeSedOperation)
-                .build();
-    }
-    
-    @Bean
-    public FunctionCallback sedPreviewFunction() {
-        return FunctionCallback.builder()
-                .name("sed_preview")
-                .description("Preview a sed operation without modifying the original")
-                .inputType(SedExecuteRequest.class)
-                .function(this::previewSedOperation)
-                .build();
-    }
-    
-    @Bean
-    public FunctionCallback sedValidateFunction() {
-        return FunctionCallback.builder()
-                .name("sed_validate")
-                .description("Validate a sed operation syntax")
-                .inputType(SedValidateRequest.class)
-                .function(this::validateSedOperation)
-                .build();
-    }
-    
+    @Tool(name = "sed_execute", description = "Execute a sed operation on text content")
     public SedExecuteResponse executeSedOperation(SedExecuteRequest request) {
         try {
             logger.info("Executing sed operation: {}", request.operation());
@@ -111,6 +77,7 @@ class SedService {
         }
     }
     
+    @Tool(name = "sed_preview", description = "Preview a sed operation without modifying the original")
     public SedExecuteResponse previewSedOperation(SedExecuteRequest request) {
         try {
             logger.info("Previewing sed operation: {}", request.operation());
@@ -139,6 +106,7 @@ class SedService {
         }
     }
     
+    @Tool(name = "sed_validate", description = "Validate a sed operation syntax")
     public SedValidateResponse validateSedOperation(SedValidateRequest request) {
         try {
             logger.info("Validating sed operation: {}", request.operation());
