@@ -45,7 +45,6 @@ public class RealSedEngine implements SedEngine {
                     .success(true)
                     .originalContent(content)
                     .modifiedContent(result.getModifiedContent())
-                    .modified(result.isModified())
                     .linesModified(result.getLinesModified())
                     .changesApplied(result.getChangesApplied())
                     .warnings(result.getWarnings())
@@ -58,12 +57,11 @@ public class RealSedEngine implements SedEngine {
                     .success(false)
                     .originalContent(content)
                     .modifiedContent(content)
-                    .modified(false)
                     .linesModified(0)
                     .changesApplied(List.of())
                     .warnings(List.of())
                     .executionTimeMs(System.currentTimeMillis() - startTime)
-                    .error(e.getMessage())
+                    .errorMessage(e.getMessage())
                     .build();
         }
     }
@@ -101,7 +99,6 @@ public class RealSedEngine implements SedEngine {
                     .success(true)
                     .originalContent(content)
                     .modifiedContent(currentContent)
-                    .modified(anyModified)
                     .linesModified(totalLinesModified)
                     .changesApplied(allChanges)
                     .warnings(allWarnings)
@@ -114,12 +111,11 @@ public class RealSedEngine implements SedEngine {
                     .success(false)
                     .originalContent(content)
                     .modifiedContent(content)
-                    .modified(false)
                     .linesModified(0)
                     .changesApplied(allChanges)
                     .warnings(allWarnings)
                     .executionTimeMs(System.currentTimeMillis() - startTime)
-                    .error(e.getMessage())
+                    .errorMessage(e.getMessage())
                     .build();
         }
     }
@@ -137,7 +133,6 @@ public class RealSedEngine implements SedEngine {
                     .success(true)
                     .originalContent(content)
                     .modifiedContent(result.getModifiedContent())
-                    .modified(result.isModified())
                     .linesModified(result.getLinesModified())
                     .changesApplied(result.getChangesApplied())
                     .warnings(result.getWarnings())
@@ -150,12 +145,11 @@ public class RealSedEngine implements SedEngine {
                     .success(false)
                     .originalContent(content)
                     .modifiedContent(content)
-                    .modified(false)
                     .linesModified(0)
                     .changesApplied(List.of())
                     .warnings(List.of())
                     .executionTimeMs(0)
-                    .error(e.getMessage())
+                    .errorMessage(e.getMessage())
                     .build();
         }
     }
@@ -246,7 +240,6 @@ public class RealSedEngine implements SedEngine {
                     .success(true)
                     .originalContent(content)
                     .modifiedContent(result)
-                    .modified(modified)
                     .linesModified(linesModified)
                     .changesApplied(changes)
                     .warnings(List.of())
@@ -283,7 +276,6 @@ public class RealSedEngine implements SedEngine {
                     .success(true)
                     .originalContent(content)
                     .modifiedContent(result)
-                    .modified(modified)
                     .linesModified(changes.size())
                     .changesApplied(changes)
                     .warnings(List.of())
@@ -318,7 +310,6 @@ public class RealSedEngine implements SedEngine {
                     .success(true)
                     .originalContent(content)
                     .modifiedContent(result)
-                    .modified(true) // Print always "modifies" by filtering content
                     .linesModified(matchedLines.size())
                     .changesApplied(changes)
                     .warnings(List.of())
