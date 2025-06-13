@@ -1,13 +1,13 @@
-# Setup and Development Guide
+# SED-MCP: A Model Context Protocol Server for sed Operations
 
-Because apparently we need yet another guide to get this thing running. Here's how to set up the Sed MCP Server for development and testing.
+A Spring Boot application that provides sed (stream editor) capabilities through the Model Context Protocol (MCP), enabling AI assistants to perform text transformations using familiar Unix sed commands.
 
 ## Prerequisites
 
-Before you start complaining about things not working, make sure you have:
+Before you start, make sure you have:
 
-- **Java 24** or later (because why use something stable when you can use the bleeding edge)
-- **Maven 3.8+** (for all your dependency nightmare needs)
+- **Java 24** or later (because we're using the bleeding edge)
+- **Maven 3.8+** (for all your dependency management needs)
 - **Node.js 18+** (if you want to use the MCP Inspector tool)
 - **Git** (obviously)
 
@@ -16,39 +16,11 @@ Before you start complaining about things not working, make sure you have:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/klawed/javaone-mcp.git
-cd javaone-mcp
+git clone https://github.com/klawed/sed-mcp.git
+cd sed-mcp
 ```
 
-### 2. Update Maven Dependencies
-
-The `pom.xml` needs some additional dependencies for our sed functionality. Add these to your dependencies section:
-
-```xml
-<!-- JUnit 5 for testing -->
-<dependency>
-    <groupId>org.junit.jupiter</groupId>
-    <artifactId>junit-jupiter-engine</artifactId>
-    <version>5.10.0</version>
-    <scope>test</scope>
-</dependency>
-
-<!-- Commons IO for file operations -->
-<dependency>
-    <groupId>commons-io</groupId>
-    <artifactId>commons-io</artifactId>
-    <version>2.11.0</version>
-</dependency>
-
-<!-- Commons Lang for utilities -->
-<dependency>
-    <groupId>org.apache.commons</groupId>
-    <artifactId>commons-lang3</artifactId>
-    <version>3.12.0</version>
-</dependency>
-```
-
-### 3. Build the Project
+### 2. Build the Project
 
 ```bash
 mvn clean compile
@@ -56,69 +28,77 @@ mvn clean compile
 
 If this fails, check your Java version and Maven configuration. If it still fails, blame the cosmic rays.
 
-### 4. Run Unit Tests
+### 3. Run Unit Tests
 
 ```bash
 mvn test
 ```
 
-This will run all the unit tests we've defined for the sed operations, models, and mocks.
+This will run all the unit tests we've defined for the sed operations, models, and engine implementations.
 
-### 5. Run Integration Tests
-
-```bash
-mvn test -Dtest="*IntegrationTest"
-```
-
-Watch as our integration tests verify that all the pieces actually work together (shocking, I know).
-
-## Testing with CLI Tool
-
-### Manual Testing
-
-Run the CLI tool to manually test sed operations:
-
-```bash
-mvn compile exec:java -Dexec.mainClass="dev.klawed.sedmcp.cli.SedCli"
-```
-
-This will start an interactive CLI where you can:
-- Test individual sed operations
-- Run batch operations
-- Preview changes before applying them
-- Validate operation syntax
-
-The CLI is useful for understanding how the sed operations work before integrating with MCP.
-
-## MCP Inspector Setup
-
-The [MCP Inspector](https://github.com/modelcontextprotocol/inspector) is actually useful for testing MCP servers without dealing with client integration headaches.
-
-### Install MCP Inspector
-
-```bash
-npm install -g @modelcontextprotocol/inspector
-```
-
-### Build the MCP Server JAR
+### 4. Create Executable JAR
 
 ```bash
 mvn clean package
 ```
 
-This creates `target/javaone-mcp-0.0.2.jar` (or whatever version number we're pretending to use).
+This creates `target/sed-mcp-0.0.1-SNAPSHOT.jar` with all dependencies included.
 
-### Test with MCP Inspector
+## Core Features
+
+### Implemented sed Operations
+
+- **Substitution (`s/pattern/replacement/flags`)**
+  - Basic substitution (first match only)
+  - Global substitution with `g` flag
+  - Case-insensitive substitution with `i` flag
+  - Multiline mode with `m` flag
+  - Dot-matches-all with `s` flag
+
+- **Deletion (`/pattern/d`)**
+  - Delete lines matching regex pattern
+  - Track number of lines deleted
+
+- **Print (`/pattern/p`)**
+  - Extract lines matching regex pattern
+  - Returns only matching lines (filtering)
+
+### Advanced Features
+
+- **Batch Operations**: Execute multiple sed operations in sequence
+- **Preview Mode**: Test operations without committing changes
+- **Comprehensive Error Handling**: Proper validation and error reporting
+- **Performance Tracking**: Execution time measurement
+
+## MCP Server Usage
+
+### Building the MCP Server
+
+```bash
+mvn clean package
+```
+
+### MCP Inspector Setup
+
+The [MCP Inspector](https://github.com/modelcontextprotocol/inspector) is useful for testing MCP servers without dealing with client integration headaches.
+
+#### Install MCP Inspector
+
+```bash
+npm install -g @modelcontextprotocol/inspector
+```
+
+#### Test with MCP Inspector
 
 Get the absolute path to your JAR file:
 
 ```bash
 # On Linux/macOS
-FULL_PATH=$(pwd)/target/javaone-mcp-0.0.2.jar
+FULL_PATH=$(pwd)/target/sed-mcp-0.0.1-SNAPSHOT.jar
 echo $FULL_PATH
 
 # On Windows PowerShell
-$FULL_PATH="$(Get-Location)\target\javaone-mcp-0.0.2.jar"
+$FULL_PATH="$(Get-Location)\target\sed-mcp-0.0.1-SNAPSHOT.jar"
 echo $FULL_PATH
 ```
 
@@ -128,74 +108,40 @@ Run the inspector:
 npx @modelcontextprotocol/inspector java -jar $FULL_PATH
 ```
 
-### Using MCP Inspector
+#### Using MCP Inspector
 
 1. **Connection Verification**: The inspector should connect to your server and show it in the connection pane
-2. **Tools Tab**: Navigate to see available tools (currently just the JavaOne presentation tools, but soon to be sed tools)
+2. **Tools Tab**: Navigate to see available tools (`sed_execute`, `sed_preview`, `sed_validate`)
 3. **Test Tools**: Click on tools to test them and see their responses
 4. **Monitor Logs**: Check the notifications pane for any errors or debug information
 
-## Development Workflow
+## Available MCP Tools
 
-### Adding New Features
+### `sed_execute`
+Execute a sed operation on text content.
 
-1. **Write the interface first** - Define what the feature should do
-2. **Create a mock implementation** - For testing without dependencies
-3. **Write unit tests** - Test the interface and mock
-4. **Write integration tests** - Test how it works with other components
-5. **Implement the real thing** - Only after you know what you're building
-6. **Test with CLI tool** - Manual verification
-7. **Test with MCP Inspector** - Protocol verification
+**Parameters:**
+- `content` (string): The text content to process
+- `operation` (string): The sed operation type (`s`, `d`, `p`)
+- `pattern` (string): The regex pattern to match
+- `replacement` (string): Replacement text (for substitution)
+- `flags` (string): Operation flags (`g`, `i`, `m`, `s`)
 
-### Running Different Test Categories
+### `sed_preview`
+Preview a sed operation without modifying the original content.
 
-```bash
-# Unit tests only
-mvn test -Dtest="*Test" -Dtest="!*IntegrationTest"
+**Parameters:** Same as `sed_execute`
 
-# Integration tests only  
-mvn test -Dtest="*IntegrationTest"
+### `sed_validate`
+Validate a sed operation syntax without executing it.
 
-# All tests
-mvn test
-
-# Specific test class
-mvn test -Dtest="SedOperationTest"
-
-# Specific test method
-mvn test -Dtest="SedOperationTest#testSubstituteOperationBuilder"
-```
-
-### Code Coverage
-
-Check test coverage (because apparently we need metrics for everything):
-
-```bash
-mvn jacoco:prepare-agent test jacoco:report
-```
-
-Open `target/site/jacoco/index.html` in your browser to see coverage reports.
-
-## Project Structure
-
-```
-src/
-├── main/java/dev/klawed/sedmcp/
-│   ├── model/           # Data models (SedOperation, SedResult)
-│   ├── service/         # Interface definitions
-│   ├── service/impl/    # Implementations (including mocks)
-│   └── cli/            # Command line interface
-└── test/java/dev/klawed/sedmcp/
-    ├── model/          # Unit tests for models
-    ├── service/impl/   # Unit tests for implementations
-    └── integration/    # Integration tests
-```
+**Parameters:** Same as `sed_execute` (but content not required)
 
 ## Configuration
 
 ### MCP Server Configuration
 
-When this thing is actually implemented, you'll configure it in Claude Desktop like this:
+Configure in Claude Desktop like this:
 
 ```json
 {
@@ -203,7 +149,7 @@ When this thing is actually implemented, you'll configure it in Claude Desktop l
     "command": "java",
     "args": [
       "-jar",
-      "/full/path/to/your/javaone-mcp-0.0.2.jar"
+      "/full/path/to/your/sed-mcp-0.0.1-SNAPSHOT.jar"
     ]
   }
 }
@@ -214,14 +160,90 @@ When this thing is actually implemented, you'll configure it in Claude Desktop l
 Set these if you want to customize behavior:
 
 ```bash
-# Maximum file size for processing (default: 10MB)
-export SED_MAX_FILE_SIZE=10485760
-
 # Enable debug logging
-export SED_DEBUG=true
+export LOGGING_LEVEL_ROOT=DEBUG
 
-# Base directory for file operations
-export SED_BASE_DIR=/tmp/sed-workspace
+# Set server port (if needed for debugging)
+export SERVER_PORT=8080
+```
+
+## Development Workflow
+
+### Project Structure
+
+```
+src/
+├── main/java/dev/klawed/sedmcp/
+│   ├── model/           # Data models (SedOperation, SedResult)
+│   ├── service/         # Interface definitions
+│   ├── service/impl/    # Implementations (including RealSedEngine)
+│   ├── cli/             # Command line interface (basic testing)
+│   └── Application.java # Main Spring Boot app with MCP tools
+└── test/java/dev/klawed/sedmcp/
+    ├── model/           # Unit tests for models
+    └── service/impl/    # Unit tests for implementations
+```
+
+### Adding New Features
+
+1. **Write the interface first** - Define what the feature should do
+2. **Write unit tests** - Test the interface and implementation
+3. **Implement the real thing** - Only after you know what you're building
+4. **Test with MCP Inspector** - Protocol verification
+5. **Update documentation** - Keep this guide current
+
+### Running Different Test Categories
+
+```bash
+# Unit tests only
+mvn test
+
+# Specific test class
+mvn test -Dtest="RealSedEngineTest"
+
+# Specific test method
+mvn test -Dtest="RealSedEngineTest#testSubstituteOperation"
+```
+
+### Code Coverage
+
+Check test coverage:
+
+```bash
+mvn jacoco:prepare-agent test jacoco:report
+```
+
+Open `target/site/jacoco/index.html` in your browser to see coverage reports.
+
+## Testing with Examples
+
+### Basic Substitution
+```json
+{
+  "content": "Hello world\nHello universe",
+  "operation": "s",
+  "pattern": "Hello",
+  "replacement": "Hi",
+  "flags": "g"
+}
+```
+
+### Line Deletion
+```json
+{
+  "content": "line 1\nline 2\nline 3",
+  "operation": "d",
+  "pattern": "line 2"
+}
+```
+
+### Pattern Matching
+```json
+{
+  "content": "apple\nbanana\napricot",
+  "operation": "p",
+  "pattern": "ap.*"
+}
 ```
 
 ## Troubleshooting
@@ -234,14 +256,12 @@ export SED_BASE_DIR=/tmp/sed-workspace
 
 **"SecurityException"**: Path validation failed. Make sure you're not trying to access files outside the allowed directories.
 
-**"MockSedEngine used in production"**: Well, that's embarrassing. Make sure you're using the real implementation, not the mock.
-
 ### Debug Mode
 
 Enable debug logging to see what's happening:
 
 ```bash
-java -Dorg.slf4j.simpleLogger.defaultLogLevel=debug -jar target/javaone-mcp-0.0.2.jar
+java -Dlogging.level.dev.klawed.sedmcp=DEBUG -jar target/sed-mcp-0.0.1-SNAPSHOT.jar
 ```
 
 ### Testing Connection Issues
@@ -253,96 +273,7 @@ If MCP Inspector can't connect:
 3. Look for error messages in the inspector console
 4. Try running the JAR directly to see if it starts properly
 
-### Memory Issues
-
-For large files or complex operations:
-
-```bash
-java -Xmx2g -jar target/javaone-mcp-0.0.2.jar
-```
-
-## Testing Strategies
-
-### Unit Testing
-
-Our unit tests focus on individual components:
-
-- **Model tests**: Verify data validation and serialization
-- **Service tests**: Test business logic in isolation
-- **Mock tests**: Ensure test infrastructure works
-
-### Integration Testing
-
-Integration tests verify end-to-end workflows:
-
-- **File processing**: Read → Transform → Write
-- **Error handling**: How failures propagate through the system
-- **Security**: Path validation and access controls
-- **Performance**: Timing and resource usage
-
-### Manual Testing with CLI
-
-The CLI tool lets you test operations interactively:
-
-```bash
-# Example session
-Choose an option: 1
-Enter the text content:
-Hello world
-This is a test
-END
-
-Operation type (s/d/p/a/i/c): s
-Pattern (regex): Hello
-Replacement: Hi
-Flags (g/i/p/etc, or empty): g
-```
-
-### MCP Protocol Testing
-
-Use MCP Inspector to verify:
-
-- Tool registration and discovery
-- Request/response handling
-- Error propagation
-- Schema validation
-
-## Performance Considerations
-
-### Memory Usage
-
-- The mock implementations store everything in memory
-- Real implementations should stream large files
-- Set appropriate JVM heap size for your use case
-
-### Processing Speed
-
-- Pattern compilation is expensive - cache compiled patterns
-- File I/O can be slow - use appropriate buffer sizes
-- Complex regex patterns can be catastrophically slow
-
-### Scalability
-
-Current architecture is single-threaded and synchronous. For high-throughput scenarios, consider:
-
-- Async processing with CompletableFuture
-- Thread pools for parallel operations
-- Streaming APIs for large files
-
 ## Security Notes
-
-### File Access Controls
-
-The system includes basic path validation:
-
-```java
-fileService.validatePath(userPath, allowedBasePath);
-```
-
-This prevents:
-- Path traversal attacks (`../../../etc/passwd`)
-- Access outside allowed directories
-- Symlink attacks (in real implementation)
 
 ### Input Validation
 
@@ -360,22 +291,43 @@ Consider implementing:
 - Processing time timeouts
 - Memory usage monitoring
 
+## Performance Considerations
+
+### Memory Usage
+
+- The current implementation processes content in memory
+- Set appropriate JVM heap size for your use case: `-Xmx2g`
+
+### Processing Speed
+
+- Pattern compilation is expensive - patterns are compiled fresh each time
+- Complex regex patterns can be catastrophically slow
+- Current architecture is single-threaded and synchronous
+
+## Current Limitations
+
+1. **Limited sed operations**: Only substitute, delete, and print are implemented
+2. **No address ranges**: Line number ranges (e.g., `1,5s/old/new/`) not supported
+3. **No advanced sed features**: Hold space, branching, etc. not implemented
+4. **Single-threaded**: No parallel processing for large content
+5. **Memory-bound**: Large files must fit in memory
+
 ## Next Steps
 
 ### Immediate Priorities
 
-1. **Implement real SedEngine** - Replace mock with actual sed operations
-2. **Add real FileService** - Replace mock with actual file I/O
-3. **Create MCP tool wrappers** - Bridge between MCP protocol and sed operations
-4. **Update main Application** - Wire everything together
+1. **Add more sed operations** - Append, insert, change operations
+2. **Implement address ranges** - Support line number ranges
+3. **Add file I/O operations** - Read from and write to files
+4. **Enhance error handling** - Better error messages and recovery
 
 ### Future Enhancements
 
-1. **Advanced sed features** - Address ranges, hold space, etc.
+1. **Advanced sed features** - Hold space, branching, labels
 2. **Batch file processing** - Process multiple files in one operation
-3. **Undo/redo support** - Maintain operation history
-4. **Configuration management** - External config files
-5. **Metrics and monitoring** - Operation statistics and health checks
+3. **Configuration management** - External config files
+4. **Metrics and monitoring** - Operation statistics and health checks
+5. **Performance optimization** - Streaming for large files, pattern caching
 
 ## Contributing
 
@@ -384,7 +336,7 @@ When adding new features:
 1. **Follow the interface-first approach** - Define contracts before implementation
 2. **Write tests first** - Both unit and integration tests
 3. **Update documentation** - Keep this guide current
-4. **Test with CLI and MCP Inspector** - Verify everything works
+4. **Test with MCP Inspector** - Verify everything works
 5. **Consider security implications** - Don't create new attack vectors
 
 ## References
@@ -394,6 +346,6 @@ When adding new features:
 - [Sed Manual](https://www.gnu.org/software/sed/manual/sed.html) (for when you need to remember how sed actually works)
 - [Java Pattern Documentation](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/regex/Pattern.html)
 
-Remember: This is development infrastructure, not the final implementation. The mocks and CLI tool exist to make development easier, not to replace the real components.
+Remember: This is a working sed MCP server implementation. The core functionality is implemented and tested, ready for integration with MCP clients like Claude Desktop.
 
-Now stop reading documentation and go write some code.
+Now stop reading documentation and go test some sed operations.
