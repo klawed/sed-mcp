@@ -1,8 +1,8 @@
-# 🖥️ Claude Desktop Integration Guide
+# Claude Desktop Integration Guide
 
 Complete guide for integrating sed-mcp with Claude Desktop for seamless text processing.
 
-## 🚀 Quick Setup
+## Quick Setup
 
 ### 1. Build the MCP Server
 
@@ -46,13 +46,13 @@ This creates: `target/sed-mcp-0.0.1-SNAPSHOT.jar`
 }
 ```
 
-**⚠️ Important:** Use the **absolute path** to your JAR file!
+**Important:** Use the **absolute path** to your JAR file!
 
 ### 4. Restart Claude Desktop
 
 Close and reopen Claude Desktop to load the new MCP server.
 
-## ✅ Verification
+## Verification
 
 ### Check Connection
 
@@ -74,7 +74,7 @@ Claude should use the `sed_execute` tool and return:
 "hi world, hi everyone, hi there"
 ```
 
-## 🎯 Common Use Cases with Claude
+## Common Use Cases with Claude
 
 ### 1. **Code Refactoring**
 
@@ -108,7 +108,7 @@ database.port=5432
 database.name=myapp
 ```
 
-**Claude will:** Use sed to replace `localhost` with your production server address.
+**Claude will:** Use sed to replace `localhost` with your specified server address.
 
 ### 4. **Data Cleaning**
 
@@ -127,7 +127,7 @@ database.name=myapp
 
 **Claude will:** Use sed to remove comments and clean up the formatting.
 
-## 🔧 Advanced Configuration
+## Advanced Configuration
 
 ### Environment Variables
 
@@ -184,7 +184,7 @@ You can run multiple instances with different settings:
 ```json
 {
   "mcpServers": {
-    "sed-mcp-production": {
+    "sed-mcp-minimal": {
       "command": "java",
       "args": [
         "-Dlogging.level.root=WARN",
@@ -204,7 +204,7 @@ You can run multiple instances with different settings:
 }
 ```
 
-## 🎭 Conversation Examples
+## Conversation Examples
 
 ### Example 1: Website Migration
 
@@ -283,7 +283,7 @@ User: [EMAIL_REDACTED], Phone: [PHONE_REDACTED], ID: [ID_REDACTED]
 User: [EMAIL_REDACTED], Phone: [PHONE_REDACTED], ID: [ID_REDACTED]
 ```
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### Connection Issues
 
@@ -353,7 +353,7 @@ User: [EMAIL_REDACTED], Phone: [PHONE_REDACTED], ID: [ID_REDACTED]
 - **Windows:** `%LOCALAPPDATA%\Claude\Logs\`
 - **Linux:** `~/.local/share/Claude/logs/`
 
-## 🎨 Best Practices
+## Best Practices
 
 ### 1. **Use Descriptive Names**
 ```json
@@ -416,11 +416,11 @@ Use different configurations for different environments:
 }
 ```
 
-**Production:**
+**Minimal:**
 ```json
 {
   "mcpServers": {
-    "sed-mcp-prod": {
+    "sed-mcp-minimal": {
       "command": "java", 
       "args": [
         "-Dlogging.level.root=ERROR",
@@ -433,14 +433,14 @@ Use different configurations for different environments:
 }
 ```
 
-## 🚀 Next Steps
+## Next Steps
 
 1. **Explore Examples:** Try the use cases in [USAGE_GUIDE.md](USAGE_GUIDE.md)
 2. **Custom Workflows:** Develop your own text processing workflows
 3. **Integration:** Combine with other MCP servers for powerful automation
 4. **Feedback:** Share your use cases and improvements
 
-## 📞 Support
+## Support
 
 - **Issues:** [GitHub Issues](https://github.com/klawed/sed-mcp/issues)
 - **Documentation:** [Main README](README.md)
@@ -448,4 +448,4 @@ Use different configurations for different environments:
 
 ---
 
-*Enjoy seamless text processing with Claude Desktop and sed-mcp! 🎉*
+*Enjoy seamless text processing with Claude Desktop and sed-mcp!*
